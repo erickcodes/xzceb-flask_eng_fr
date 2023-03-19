@@ -19,12 +19,18 @@ class TranslatorManager:
         model_id = f'{original}-{translated}'
         response = self.lang_translator.translate(englishText, model_id = model_id, 
             source = original, target = translated)
+        if response.get_status_code != 200:
+            print("Error!")
+            return
+        return response.get_result()["translations"]["translation"]
 
     def frenchToEnglish(self, frenchText):
-        original = "fe"
+        original = "fr"
         translated = "en"
         model_id = f'{original}-{translated}'
         response = self.lang_translator.translate(frenchText, model_id = model_id, 
             source = original, target = translated)
         if response.get_status_code != 200:
-            print("Error, ")
+            print("Error!")
+            return 
+        return response.get_result()["translations"]["translation"]
