@@ -4,7 +4,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 from dotenv import load_dotenv
 
-class TranslatorManager:    
+class Translator:    
     def __init__(self):
         load_dotenv()
         apikey = os.environ['apikey']
@@ -13,24 +13,29 @@ class TranslatorManager:
         self.lang_translator = LanguageTranslatorV3("2018-05-01", IAM_auth)
         self.lang_translator.set_service_url(url)
 
+    def translate(self, text, original, translated):        
+        model_id = f'{original}-{translated}'
+        return self.lang_translator.translate(text, model_id = model_id, 
+            source = original, target = translated)
+
     def englishToFrench(self, englishText):
+        if englishText is None:
+            return
         original = "en"
         translated = "fr"
-        model_id = f'{original}-{translated}'
-        response = self.lang_translator.translate(englishText, model_id = model_id, 
-            source = original, target = translated)
-        if response.get_status_code != 200:
-            print("Error!")
+        response = self.translate(englishText, original, translated)
+        if response.get_status_code() != 200:
+            print(f'Error! Status code: {response.get_status_code()}')
             return
-        return response.get_result()["translations"]["translation"]
+        return response.get_result()["translations"][0]["translation"]
 
     def frenchToEnglish(self, frenchText):
+        if frenchText is None:
+            return
         original = "fr"
         translated = "en"
-        model_id = f'{original}-{translated}'
-        response = self.lang_translator.translate(frenchText, model_id = model_id, 
-            source = original, target = translated)
-        if response.get_status_code != 200:
-            print("Error!")
-            return 
-        return response.get_result()["translations"]["translation"]
+        response = self.translate(frenchText, original, translated)
+        if response.get_status_code() != 200:
+            print(f'Error! Status code: {response.get_status_code()}')
+            return
+        return response.get_result()["translations"][0]["translation"]
